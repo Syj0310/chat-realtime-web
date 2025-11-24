@@ -1,50 +1,36 @@
-
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chat Seguro RSA</title>
-<link rel="stylesheet" href="/style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat en tiempo real</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div class="app">
-<header>
-<h1>Chat Seguro RSA — Azul</h1>
-</header>
+  <div class="app">
+    <aside class="sidebar">
+      <h2>Chat</h2>
+      <div class="user-input">
+        <input id="username" placeholder="Tu nombre" />
+        <button id="btnJoin">Entrar</button>
+      </div>
+      <div class="users">
+        <h3>Conectados</h3>
+        <ul id="usersList"></ul>
+      </div>
+    </aside>
 
+    <main class="chat-area">
+      <div id="messages" class="messages"></div>
+      <div class="typing" id="typing"></div>
+      <form id="form" class="form">
+        <input id="input" autocomplete="off" placeholder="Escribe un mensaje..." />
+        <button>Enviar</button>
+      </form>
+    </main>
+  </div>
 
-<section class="left">
-<button id="generate">Generar llaves</button>
-<label>Tu ID (socket):</label>
-<input id="myId" readonly />
-<label>Tu clave pública:</label>
-<textarea id="myPub" readonly></textarea>
-<label>Usuarios conectados:</label>
-<ul id="users"></ul>
-</section>
-
-
-<section class="right">
-<ul id="messages" class="messages"></ul>
-
-
-<div class="controls">
-<select id="toSelect"></select>
-<input id="nameInput" placeholder="Tu nombre (visible)" />
-<input id="msgInput" placeholder="Escribe mensaje" />
-<button id="encryptBtn">Cifrar</button>
-<button id="sendBtn">Enviar cifrado</button>
-<button id="decryptBtn">Descifrar seleccionado</button>
-</div>
-</section>
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/jsencrypt/bin/jsencrypt.min.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="/rsa.js"></script>
-<script src="/chat.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/chat.js"></script>
 </body>
 </html>
-```

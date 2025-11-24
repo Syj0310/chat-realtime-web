@@ -1,55 +1,45 @@
-
-// servidor Node.js + Express + Socket.io
 const express = require('express');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-// Mapa socket.id -> publicKey
-const publicKeys = new Map();
-
+const users = {};
 
 io.on('connection', (socket) => {
-console.log('Usuario conectado:', socket.id);
+  socket.on('join', (username) => {
+    users[socket.id] = username || 'Anonimo';
+    socket.broadcast.emit('system_message', `${users[socket.id]} se ha unido al chat.`);
+    io.emit('users', Object.values(users));
+  });
 
+  socket.on('chat_message', (msg) => {
+    const username = users[socket.id] || 'Anonimo';
+    io.emit('chat_message', { user: username, text: msg, time: new Date().toISOString() });
+  });
 
-// Cuando el cliente envía su clave pública
-socket.on('register_key', (pubKey) => {
-publicKeys.set(socket.id, pubKey);
-// enviar mapa reducido (id -> publicKey) a todos para que puedan encontrar destinatarios
-const mapObj = Array.from(publicKeys.entries()).map(([id, key]) => ({ id, key }));
-io.emit('keys_update', mapObj);
+  socket.on('typing', (isTyping) => {
+    const username = users[socket.id] || 'Anonimo';
+    socket.broadcast.emit('typing', { user: username, typing: isTyping });
+  });
+
+  socket.on('disconnect', () => {
+    const username = users[socket.id];
+    if (username) {
+      socket.broadcast.emit('system_message', `${username} ha salido del chat.`);
+      delete users[socket.id];
+      io.emit('users', Object.values(users));
+    }
+  });
 });
 
-
-// Mensaje cifrado: { to: socketIdDestino, fromName, payload }
-socket.on('encrypted_message', (obj) => {
-const { to } = obj;
-// reenviar solo al destinatario si existe
-const target = io.sockets.sockets.get(to);
-if (target && target.connected) {
-target.emit('encrypted_message', obj);
-}
+server.listen(PORT, () => {
+  console.log(`Servidor en http://localhost:${PORT}`);
 });
-
-
-socket.on('disconnect', () => {
-publicKeys.delete(socket.id);
-const mapObj = Array.from(publicKeys.entries()).map(([id, key]) => ({ id, key }));
-io.emit('keys_update', mapObj);
-console.log('Usuario desconectado:', socket.id);
-});
-});
-
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log('Servidor en puerto', PORT));

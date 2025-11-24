@@ -1,56 +1,66 @@
 const socket = io();
-const input = document.getElementById("input");
-const messages = document.getElementById("messages");
 
+const form = document.getElementById('form');
+const input = document.getElementById('input');
+const messages = document.getElementById('messages');
+const usernameInput = document.getElementById('username');
+const btnJoin = document.getElementById('btnJoin');
+const usersList = document.getElementById('usersList');
+const typingDiv = document.getElementById('typing');
 
-const encryptBtn = document.getElementById("encryptBtn");
-const decryptBtn = document.getElementById("decryptBtn");
-const sendBtn = document.getElementById("sendBtn");
+let joined = false;
+let typing = false;
+let timeout;
 
-
-let lastEncrypted = "";
-
-
-// Cifrar mensaje
-encryptBtn.onclick = () => {
-const text = input.value.trim();
-if (!text) return alert("Escribe algo para cifrar.");
-
-
-const encrypted = encryptMessage(text);
-if (!encrypted) return alert("No se pudo cifrar. Asegúrate de tener la llave pública de tu amigo.");
-
-
-lastEncrypted = encrypted;
-input.value = encrypted;
+btnJoin.onclick = () => {
+  if (!usernameInput.value.trim()) return;
+  socket.emit('join', usernameInput.value.trim());
+  joined = true;
 };
 
+input.addEventListener('input', () => {
+  if (!typing) {
+    typing = true;
+    socket.emit('typing', true);
+  }
+  clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    typing = false;
+    socket.emit('typing', false);
+  }, 1500);
+});
 
-// Descifrar mensaje
-decryptBtn.onclick = () => {
-const text = input.value.trim();
-if (!text) return;
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (input.value.trim()) {
+    socket.emit('chat_message', input.value);
+    input.value = '';
+  }
+});
 
+socket.on('chat_message', (msg) => {
+  const item = document.createElement('div');
+  item.textContent = `${msg.user}: ${msg.text}`;
+  messages.appendChild(item);
+  messages.scrollTop = messages.scrollHeight;
+});
 
-const decrypted = decryptMessage(text);
-input.value = decrypted || "(No se pudo descifrar)";
-};
+socket.on('system_message', (txt) => {
+  const item = document.createElement('div');
+  item.style.opacity = 0.7;
+  item.textContent = txt;
+  messages.appendChild(item);
+});
 
+socket.on('users', (users) => {
+  usersList.innerHTML = "";
+  users.forEach(u => {
+    const li = document.createElement('li');
+    li.textContent = u;
+    usersList.appendChild(li);
+  });
+});
 
-// Enviar a tu amigo
-sendBtn.onclick = () => {
-if (!input.value.trim()) return;
-
-
-socket.emit("chat message", input.value.trim());
-input.value = "";
-};
-
-
-// Recibir mensajes del servidor
-socket.on("chat message", (msg) => {
-const li = document.createElement("li");
-li.textContent = msg;
-messages.appendChild(li);
-messages.scrollTop = messages.scrollHeight;
+socket.on('typing', ({ user, typing }) => {
+  typingDiv.textContent = typing ? `${user} está escribiendo...` : "";
 });
