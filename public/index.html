@@ -1,55 +1,39 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<title>Chat RSA</title>
-<style>
-body{background:#111;color:#eee;font-family:Arial;padding:20px}
-#chat{border:1px solid #444;padding:10px;height:200px;overflow-y:auto;margin-bottom:10px}
-input,button,textarea{width:100%;margin:5px 0;padding:8px;background:#222;border:1px solid #555;color:#eee}
-button{cursor:pointer}
-</style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chat Seguro RSA</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<h1>Chat en Tiempo Real (Local) con RSA</h1>
-<div id="chat"></div>
-<textarea id="msg" placeholder="Escribe un mensaje..."></textarea>
-<button id="encryptBtn">Cifrar (RSA)</button>
-<button id="decryptBtn">Descifrar (RSA)</button>
+<div id="chat-container">
+<h2>🔐 Chat seguro RSA</h2>
+
+
+<div id="rsa-panel">
+<button id="generateKeys">Generar llaves RSA</button>
+<textarea id="publicKey" placeholder="Tu llave pública"></textarea>
+<textarea id="friendKey" placeholder="Llave pública de tu amigo"></textarea>
+</div>
+
+
+<ul id="messages"></ul>
+
+
+<div id="controls">
+<input id="input" autocomplete="off" placeholder="Escribe un mensaje..." />
+<button id="encryptBtn">Cifrar</button>
+<button id="decryptBtn">Descifrar</button>
 <button id="sendBtn">Enviar</button>
+</div>
+</div>
 
-<script type="module">
-import { generateKeyPair, encryptRSA, decryptRSA } from './rsa.js';
 
-let keys = await generateKeyPair();
-
-const chat = document.getElementById('chat');
-const msg = document.getElementById('msg');
-
-document.getElementById('sendBtn').onclick = ()=>{
-    const text = msg.value;
-    if(!text) return;
-    chat.innerHTML += "<p><b>Tú:</b> " + text + "</p>";
-    msg.value = "";
-};
-
-document.getElementById('encryptBtn').onclick = async ()=>{
-    const text = msg.value;
-    if(!text) return alert("Escribe algo primero.");
-    const enc = await encryptRSA(text, keys.publicKey);
-    msg.value = enc;
-};
-
-document.getElementById('decryptBtn').onclick = async ()=>{
-    const text = msg.value;
-    if(!text) return alert("Escribe algo primero.");
-    try{
-        const dec = await decryptRSA(text, keys.privateKey);
-        msg.value = dec;
-    }catch(e){
-        alert("No se pudo descifrar.");
-    }
-};
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="rsa.js"></script>
+<script src="chat.js"></script>
 </body>
 </html>
+*/

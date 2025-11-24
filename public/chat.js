@@ -1,73 +1,56 @@
-c// Conectar al servidor WebSocket
-const socket = new WebSocket("ws://localhost:3000");
-
-// DOM
+const socket = io();
+const input = document.getElementById("input");
 const messages = document.getElementById("messages");
-const input = document.getElementById("messageInput");
+
 
 const encryptBtn = document.getElementById("encryptBtn");
 const decryptBtn = document.getElementById("decryptBtn");
 const sendBtn = document.getElementById("sendBtn");
 
-// Generar par RSA
-const crypt = new JSEncrypt({ default_key_size: 1024 });
-crypt.getKey();
 
-const publicKey = crypt.getPublicKey();
-const privateKey = crypt.getPrivateKey();
+let lastEncrypted = "";
 
-document.getElementById("publicKey").value = publicKey;
-document.getElementById("privateKey").value = privateKey;
 
-// Último mensaje recibido
-let lastEncryptedMessage = "";
-
-socket.onmessage = (event) => {
-    const div = document.createElement("div");
-    div.className = "message";
-    div.textContent = "📩 Cifrado: " + event.data;
-    messages.appendChild(div);
-
-    lastEncryptedMessage = event.data;
-};
-
-// Botón cifrar
+// Cifrar mensaje
 encryptBtn.onclick = () => {
-    const encrypted = crypt.encrypt(input.value);
+const text = input.value.trim();
+if (!text) return alert("Escribe algo para cifrar.");
 
-    if (!encrypted) {
-        alert("No se pudo cifrar.");
-        return;
-    }
 
-    input.value = encrypted;
+const encrypted = encryptMessage(text);
+if (!encrypted) return alert("No se pudo cifrar. Asegúrate de tener la llave pública de tu amigo.");
+
+
+lastEncrypted = encrypted;
+input.value = encrypted;
 };
 
-// Enviar mensaje ya cifrado
-sendBtn.onclick = () => {
-    if (input.value.trim() === "") return;
 
-    socket.send(input.value);
-
-    const div = document.createElement("div");
-    div.className = "message";
-    div.textContent = "📤 Enviado (cifrado): " + input.value;
-    messages.appendChild(div);
-
-    input.value = "";
-};
-
-// Descifrar último mensaje recibido
+// Descifrar mensaje
 decryptBtn.onclick = () => {
-    if (!lastEncryptedMessage) {
-        alert("No hay mensajes cifrados.");
-        return;
-    }
+const text = input.value.trim();
+if (!text) return;
 
-    const decrypted = crypt.decrypt(lastEncryptedMessage);
 
-    const div = document.createElement("div");
-    div.className = "message";
-    div.textContent = "🔓 Descifrado: " + decrypted;
-    messages.appendChild(div);
+const decrypted = decryptMessage(text);
+input.value = decrypted || "(No se pudo descifrar)";
 };
+
+
+// Enviar a tu amigo
+sendBtn.onclick = () => {
+if (!input.value.trim()) return;
+
+
+socket.emit("chat message", input.value.trim());
+input.value = "";
+};
+
+
+// Recibir mensajes del servidor
+socket.on("chat message", (msg) => {
+const li = document.createElement("li");
+li.textContent = msg;
+messages.appendChild(li);
+messages.scrollTop = messages.scrollHeight;
+});

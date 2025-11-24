@@ -1,19 +1,35 @@
-export async function generateKeyPair(){
-    return await window.crypto.subtle.generateKey(
-        {name:"RSA-OAEP", modulusLength:2048, publicExponent:new Uint8Array([1,0,1]), hash:"SHA-256"},
-        true,
-        ["encrypt","decrypt"]
-    );
+let myPrivateKey = "";
+let myPublicKey = "";
+
+
+const generateKeysBtn = document.getElementById("generateKeys");
+const publicKeyBox = document.getElementById("publicKey");
+const friendKeyBox = document.getElementById("friendKey");
+
+
+// Generar llaves RSA
+
+
+generateKeysBtn.onclick = () => {
+const crypt = new JSEncrypt({ default_key_size: "1024" });
+myPrivateKey = crypt.getPrivateKey();
+myPublicKey = crypt.getPublicKey();
+publicKeyBox.value = myPublicKey;
+alert("Llaves generadas. Copia tu llave pública y pásala a tu amigo.");
+};
+
+
+// Cifrar
+function encryptMessage(msg) {
+const crypt = new JSEncrypt();
+crypt.setPublicKey(friendKeyBox.value.trim());
+return crypt.encrypt(msg);
 }
 
-export async function encryptRSA(msg, publicKey){
-    const enc = new TextEncoder().encode(msg);
-    const buffer = await crypto.subtle.encrypt({name:"RSA-OAEP"}, publicKey, enc);
-    return btoa(String.fromCharCode(...new Uint8Array(buffer)));
-}
 
-export async function decryptRSA(b64, privateKey){
-    const bytes = Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
-    const buffer = await crypto.subtle.decrypt({name:"RSA-OAEP"}, privateKey, bytes);
-    return new TextDecoder().decode(buffer);
+// Descifrar
+function decryptMessage(msg) {
+const crypt = new JSEncrypt();
+crypt.setPrivateKey(myPrivateKey);
+return crypt.decrypt(msg);
 }
