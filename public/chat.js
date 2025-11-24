@@ -1,66 +1,73 @@
-const socket = io();
+c// Conectar al servidor WebSocket
+const socket = new WebSocket("ws://localhost:3000");
 
-const form = document.getElementById('form');
-const input = document.getElementById('input');
-const messages = document.getElementById('messages');
-const usernameInput = document.getElementById('username');
-const btnJoin = document.getElementById('btnJoin');
-const usersList = document.getElementById('usersList');
-const typingDiv = document.getElementById('typing');
+// DOM
+const messages = document.getElementById("messages");
+const input = document.getElementById("messageInput");
 
-let joined = false;
-let typing = false;
-let timeout;
+const encryptBtn = document.getElementById("encryptBtn");
+const decryptBtn = document.getElementById("decryptBtn");
+const sendBtn = document.getElementById("sendBtn");
 
-btnJoin.onclick = () => {
-  if (!usernameInput.value.trim()) return;
-  socket.emit('join', usernameInput.value.trim());
-  joined = true;
+// Generar par RSA
+const crypt = new JSEncrypt({ default_key_size: 1024 });
+crypt.getKey();
+
+const publicKey = crypt.getPublicKey();
+const privateKey = crypt.getPrivateKey();
+
+document.getElementById("publicKey").value = publicKey;
+document.getElementById("privateKey").value = privateKey;
+
+// Último mensaje recibido
+let lastEncryptedMessage = "";
+
+socket.onmessage = (event) => {
+    const div = document.createElement("div");
+    div.className = "message";
+    div.textContent = "📩 Cifrado: " + event.data;
+    messages.appendChild(div);
+
+    lastEncryptedMessage = event.data;
 };
 
-input.addEventListener('input', () => {
-  if (!typing) {
-    typing = true;
-    socket.emit('typing', true);
-  }
-  clearTimeout(timeout);
-  timeout = setTimeout(() => {
-    typing = false;
-    socket.emit('typing', false);
-  }, 1500);
-});
+// Botón cifrar
+encryptBtn.onclick = () => {
+    const encrypted = crypt.encrypt(input.value);
 
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  if (input.value.trim()) {
-    socket.emit('chat_message', input.value);
-    input.value = '';
-  }
-});
+    if (!encrypted) {
+        alert("No se pudo cifrar.");
+        return;
+    }
 
-socket.on('chat_message', (msg) => {
-  const item = document.createElement('div');
-  item.textContent = `${msg.user}: ${msg.text}`;
-  messages.appendChild(item);
-  messages.scrollTop = messages.scrollHeight;
-});
+    input.value = encrypted;
+};
 
-socket.on('system_message', (txt) => {
-  const item = document.createElement('div');
-  item.style.opacity = 0.7;
-  item.textContent = txt;
-  messages.appendChild(item);
-});
+// Enviar mensaje ya cifrado
+sendBtn.onclick = () => {
+    if (input.value.trim() === "") return;
 
-socket.on('users', (users) => {
-  usersList.innerHTML = "";
-  users.forEach(u => {
-    const li = document.createElement('li');
-    li.textContent = u;
-    usersList.appendChild(li);
-  });
-});
+    socket.send(input.value);
 
-socket.on('typing', ({ user, typing }) => {
-  typingDiv.textContent = typing ? `${user} está escribiendo...` : "";
-});
+    const div = document.createElement("div");
+    div.className = "message";
+    div.textContent = "📤 Enviado (cifrado): " + input.value;
+    messages.appendChild(div);
+
+    input.value = "";
+};
+
+// Descifrar último mensaje recibido
+decryptBtn.onclick = () => {
+    if (!lastEncryptedMessage) {
+        alert("No hay mensajes cifrados.");
+        return;
+    }
+
+    const decrypted = crypt.decrypt(lastEncryptedMessage);
+
+    const div = document.createElement("div");
+    div.className = "message";
+    div.textContent = "🔓 Descifrado: " + decrypted;
+    messages.appendChild(div);
+};

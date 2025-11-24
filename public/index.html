@@ -1,36 +1,33 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat en tiempo real</title>
-  <link rel="stylesheet" href="/style.css">
+    <meta charset="UTF-8" />
+    <title>Chat Seguro RSA</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jsencrypt/bin/jsencrypt.min.js"></script>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <h2>Chat</h2>
-      <div class="user-input">
-        <input id="username" placeholder="Tu nombre" />
-        <button id="btnJoin">Entrar</button>
-      </div>
-      <div class="users">
-        <h3>Conectados</h3>
-        <ul id="usersList"></ul>
-      </div>
-    </aside>
+    <div class="chat-container">
+        <h1>💬 Chat Seguro con RSA</h1>
 
-    <main class="chat-area">
-      <div id="messages" class="messages"></div>
-      <div class="typing" id="typing"></div>
-      <form id="form" class="form">
-        <input id="input" autocomplete="off" placeholder="Escribe un mensaje..." />
-        <button>Enviar</button>
-      </form>
-    </main>
-  </div>
+        <div class="keys-box">
+            <h3>🔑 Tus claves</h3>
+            <textarea id="publicKey" placeholder="Clave pública" readonly></textarea>
+            <textarea id="privateKey" placeholder="Clave privada" readonly></textarea>
+        </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/chat.js"></script>
+        <div id="messages"></div>
+
+        <div class="input-area">
+            <input id="messageInput" placeholder="Escribe un mensaje..." />
+            <button id="encryptBtn">🔐 Cifrar</button>
+            <button id="sendBtn">📤 Enviar</button>
+        </div>
+
+        <button id="decryptBtn" class="decrypt-btn">🔓 Descifrar Último Mensaje</button>
+    </div>
+
+    <script src="chat.js"></script>
 </body>
 </html>
+
