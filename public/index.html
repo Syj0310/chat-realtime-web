@@ -2,31 +2,36 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat en tiempo real</title>
-  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chat RSA (clase) — Azul minimalista</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <h2>Chat</h2>
-      <div class="user-input">
-        <input id="username" placeholder="Tu nombre" />
-        <button id="btnJoin">Entrar</button>
-      </div>
-      <div class="users">
-        <h3>Conectados</h3>
-        <ul id="usersList"></ul>
-      </div>
+      <label>Tu nombre</label>
+      <input id="nameInput" placeholder="Tu nombre" />
+      <label>Tu ID</label>
+      <input id="myId" readonly />
+      <button id="refreshPeers">Actualizar usuarios</button>
+
+      <h3>Conectados</h3>
+      <ul id="peersList"></ul>
     </aside>
 
     <main class="chat-area">
-      <div id="messages" class="messages"></div>
-      <div class="typing" id="typing"></div>
-      <form id="form" class="form">
-        <input id="input" autocomplete="off" placeholder="Escribe un mensaje..." />
-        <button>Enviar</button>
-      </form>
+      <ul id="messages"></ul>
+
+      <div class="controls">
+        <select id="toSelect"><option value="">(A todos)</option></select>
+        <input id="msgInput" placeholder="Escribe un mensaje..." />
+        <button id="encryptBtn">Cifrar</button>
+        <button id="sendBtn">Enviar cifrado</button>
+        <button id="decryptBtn">Descifrar último</button>
+      </div>
+
+      <p class="hint">Nota: RSA clase (p=7, q=11, n=77, e=13, d=37). Letras a=1..z=26, espacio=0.</p>
     </main>
   </div>
 
