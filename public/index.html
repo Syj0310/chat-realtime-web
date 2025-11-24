@@ -1,39 +1,50 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Chat Seguro RSA</title>
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div id="chat-container">
-<h2>🔐 Chat seguro RSA</h2>
+<div class="app">
+<header>
+<h1>Chat Seguro RSA — Azul</h1>
+</header>
 
 
-<div id="rsa-panel">
-<button id="generateKeys">Generar llaves RSA</button>
-<textarea id="publicKey" placeholder="Tu llave pública"></textarea>
-<textarea id="friendKey" placeholder="Llave pública de tu amigo"></textarea>
-</div>
+<section class="left">
+<button id="generate">Generar llaves</button>
+<label>Tu ID (socket):</label>
+<input id="myId" readonly />
+<label>Tu clave pública:</label>
+<textarea id="myPub" readonly></textarea>
+<label>Usuarios conectados:</label>
+<ul id="users"></ul>
+</section>
 
 
-<ul id="messages"></ul>
+<section class="right">
+<ul id="messages" class="messages"></ul>
 
 
-<div id="controls">
-<input id="input" autocomplete="off" placeholder="Escribe un mensaje..." />
+<div class="controls">
+<select id="toSelect"></select>
+<input id="nameInput" placeholder="Tu nombre (visible)" />
+<input id="msgInput" placeholder="Escribe mensaje" />
 <button id="encryptBtn">Cifrar</button>
-<button id="decryptBtn">Descifrar</button>
-<button id="sendBtn">Enviar</button>
+<button id="sendBtn">Enviar cifrado</button>
+<button id="decryptBtn">Descifrar seleccionado</button>
 </div>
+</section>
 </div>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsencrypt/bin/jsencrypt.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="rsa.js"></script>
-<script src="chat.js"></script>
+<script src="/rsa.js"></script>
+<script src="/chat.js"></script>
 </body>
 </html>
-*/
+```
